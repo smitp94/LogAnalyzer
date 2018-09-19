@@ -15,10 +15,12 @@ def plot_scatter(x, y):
 
 def plot_drive(plots):
     color = (0, 0.5, 0.5)
-    for i in range(len(plots)):
-        plt.subplot(len(plots), 1, i)
-        plt.scatter(plots[i].x, plots[i].y, s=np.pi * 3, c=color, alpha=0.5)
-        plt.title(plots[i])
+    k=0
+    for i in plots:
+        k+=1
+        plt.subplot(len(plots), 1, k)
+        plt.scatter(plots[i]['x'], plots[i]['y'], s=np.pi * 3, c=color, alpha=0.5)
+        plt.title(i[:-6])
         plt.xlabel('response')
         plt.ylabel('total')
     plt.show()
