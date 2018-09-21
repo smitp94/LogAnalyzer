@@ -16,17 +16,16 @@ def parse_plot():
             y = []
 
             for i in range(len(data)):
-                pprint(data[i]['durations']['total'])  # 954290681
-                print(filename)
+                # pprint(data[i]['durations']['total'])  # 954290681
                 if data[i]['durations']['total'] is not None and data[i]['durations']['total'] < 100000: # to remove one big outlier
                     x.append(data[i]['durations']['response'])
                     y.append(data[i]['durations']['total'])
 
             plots[filename]['x'] = x
             plots[filename]['y'] = y
-    print(plots)
+
     plot_drive(plots)
 
 
 parse_plot()
-# date, date-time
+

@@ -23,4 +23,6 @@ def plot_drive(plots):
         plt.title(i[:-6])
         plt.xlabel('response')
         plt.ylabel('total')
+        plt.subplots_adjust(hspace = 3.9)
+
     plt.show()
