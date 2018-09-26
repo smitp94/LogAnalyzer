@@ -26,15 +26,29 @@ def parse_plot():
     pprint(data[3])
     # plot_drive(plots)
 
-    '''
-    Plots
-    SVM PCA full math
-    Potential Data points
-        Status: 5xx, 4xx?
-    algorithm implement / param tuning SVM 1 class
-    
-    '''
+
+def parse():
+    for file in os.listdir('data'):
+        filename = os.fsdecode(file)
+        if filename.endswith(".chlsj"):
+            file = open("data/" + filename, "r")
+            data = json.load(file)
+
+            for i in range(len(data)):
+                if "api2" in data[i]['host'] and data[i]['durations']['total'] is not None and data[i]['durations']['total'] == 2826:
+                    pprint(filename)
+                    pprint(data[i])
+                    print(data[i]['keptAlive'])
+'''
+269105
+245087
+None
+3532193216
+1268284962 => if ms , 14 days...
+11086
+'''
 
 
-parse_plot()
+parse()
+# parse_plot()
 
