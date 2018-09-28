@@ -12,8 +12,6 @@ def file_convert():
 def write_train():
     train = {}
     for file in os.listdir('raw'):  # after converting file to json
-        # print(file)
-        # filename = os.fsdecode(file)
         if file.endswith(".chlsj"):
             train[file] = 'yes'
 

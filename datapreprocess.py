@@ -39,14 +39,6 @@ def parse():
                     pprint(filename)
                     pprint(data[i])
                     print(data[i]['keptAlive'])
-'''
-269105
-245087
-None
-3532193216
-1268284962 => if ms , 14 days...
-11086
-'''
 
 
 parse()
