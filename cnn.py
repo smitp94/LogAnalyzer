@@ -2,47 +2,49 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.preprocessing.text import *
 import numpy as np
+import os
 
 
 def load_data():
-    f = open("raw/iOS_UCLA copy.chlsj", "r")
-    text = f.read()
-    text1 = f.read()
-    docs = [text, text1]  # !!!
+    docs = []
+    for file in os.listdir('raw'):
+        filename = os.fsdecode(file)
+        if filename.endswith(".chlsj"):
+            f = open("raw/" + filename, "r")
+            text = f.read()
+            docs.append(text)
 
     t = Tokenizer()
     # fit the tokenizer on the documents
     t.fit_on_texts(docs)
+    encoded_docs = t.texts_to_matrix(docs, mode='count')
+    # print(len(encoded_docs))
+    # return
 
-    f_test = open("raw/iOS_UCLA copy.chlsj", "r")
+    f_test = open("data/FXM_programming will resume.chlsj", "r")
     text_test = f_test.read()
     docs_test = [text_test]
     t1 = Tokenizer()
     t1.fit_on_texts(docs_test)
+    encoded_test_docs = t1.texts_to_matrix(docs_test, mode='count')
 
-    # words = set(text_to_word_sequence(text))
-    # vocab_size = len(words)
-    # result1 = hashing_trick(text, round(vocab_size * 1.3), hash_function='md5')
-
-    return (t.word_index.values(), [0]), (t1.word_index.values(), [0]), len(t.word_index), t.word_index
-
-
-# load_data()
+    return (encoded_docs, [0,0,1,0]), (encoded_test_docs, [1]), len(t.word_index), t.word_index
 
 
 def test():
-    imdb = keras.datasets.imdb
 
     (train_data, train_labels), (test_data, test_labels), vocab_size, word_index = load_data()
-    print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
-
+    # print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
+    #
+    # print((train_data))
+    # return
     # word_index = # above load_data()
 
     # The first indices are reserved
     word_index = {k: (v + 3) for k, v in word_index.items()}
     word_index["<PAD>"] = 0
     word_index["<START>"] = 1
-    word_index["<UNK>"] = 2  # unknown
+    word_index["<UNK>"] = 2
     word_index["<UNUSED>"] = 3
 
     model = keras.Sequential()
@@ -51,16 +53,9 @@ def test():
     model.add(keras.layers.Dense(16, activation=tf.nn.relu))
     model.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
 
-    # later for multiple files!!!
-    train_data = keras.preprocessing.sequence.pad_sequences(train_data,
-                                                            value=word_index["<PAD>"],
-                                                            padding='post',
-                                                            maxlen=256)
+    train_data = keras.preprocessing.sequence.pad_sequences(train_data, value=word_index["<PAD>"], padding='post', maxlen=256)
 
-    test_data = keras.preprocessing.sequence.pad_sequences(test_data,
-                                                           value=word_index["<PAD>"],
-                                                           padding='post',
-                                                           maxlen=256)
+    test_data = keras.preprocessing.sequence.pad_sequences(test_data, value=word_index["<PAD>"], padding='post', maxlen=256)
 
     # print(model.summary())
 
@@ -68,10 +63,18 @@ def test():
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
 
+    # later for large training set!!!
+    # x_val = train_data[:10000]
+    # partial_x_train = train_data[10000:]
+    #
+    # y_val = train_labels[:10000]
+    # partial_y_train = train_labels[10000:]
+    #
+    # history = model.fit(partial_x_train, partial_y_train, epochs=40, batch_size=512, validation_data=(x_val, y_val), verbose=1)
+
     results = model.evaluate(test_data, test_labels)
 
     print(results)
 
 
 test()
-# (train_data, train_labels), (test_data, test_labels) = load_data()
