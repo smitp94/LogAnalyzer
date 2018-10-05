@@ -16,11 +16,8 @@ def load_data():
             docs.append(text)
 
     t = Tokenizer()
-    # fit the tokenizer on the documents
     t.fit_on_texts(docs)
     encoded_docs = t.texts_to_matrix(docs, mode='count')
-    # print(len(encoded_docs))
-    # return
 
     f_test = open("data/FXM_programming will resume.chlsj", "r")  # test data here!!!
     text_test = f_test.read()
@@ -35,11 +32,6 @@ def load_data():
 def test():
 
     (train_data, train_labels), (test_data, test_labels), vocab_size, word_index = load_data()
-    # print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
-    #
-    # print((train_data))
-    # return
-    # word_index = # above load_data()
 
     # The first indices are reserved
     word_index = {k: (v + 3) for k, v in word_index.items()}
@@ -64,7 +56,7 @@ def test():
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
 
-    # later for large training set!!!
+    # cross validation setup
     # x_val = train_data[:10000]
     # partial_x_train = train_data[10000:]
     #
