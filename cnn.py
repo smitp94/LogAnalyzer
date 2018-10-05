@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.preprocessing.text import *
+from keras.models import model_from_yaml
 import numpy as np
 import os
 
@@ -21,14 +22,14 @@ def load_data():
     # print(len(encoded_docs))
     # return
 
-    f_test = open("data/FXM_programming will resume.chlsj", "r")
+    f_test = open("data/FXM_programming will resume.chlsj", "r")  # test data here!!!
     text_test = f_test.read()
     docs_test = [text_test]
     t1 = Tokenizer()
     t1.fit_on_texts(docs_test)
     encoded_test_docs = t1.texts_to_matrix(docs_test, mode='count')
 
-    return (encoded_docs, [0,0,1,0]), (encoded_test_docs, [1]), len(t.word_index), t.word_index
+    return (encoded_docs, [0, 0, 1, 0, 0, 0, 0, 1, 0, 1]), (encoded_test_docs, [0]), len(t.word_index), t.word_index
 
 
 def test():
@@ -73,8 +74,28 @@ def test():
     # history = model.fit(partial_x_train, partial_y_train, epochs=40, batch_size=512, validation_data=(x_val, y_val), verbose=1)
 
     results = model.evaluate(test_data, test_labels)
-
+    # save_model(model)
     print(results)
+
+
+def save_model(model):
+    # serialize model to YAML
+    model_yaml = model.to_yaml()
+    with open("model.yaml", "w") as yaml_file:
+        yaml_file.write(model_yaml)
+    # serialize weights to HDF5
+    model.save_weights("model.h5")
+
+
+def load_model(model):
+    # load YAML and create model
+    yaml_file = open('model.yaml', 'r')
+    loaded_model_yaml = yaml_file.read()
+    yaml_file.close()
+    loaded_model = model_from_yaml(loaded_model_yaml)
+    # load weights into new model
+    loaded_model.load_weights("model.h5")
+    return loaded_model
 
 
 test()
