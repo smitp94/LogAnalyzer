@@ -1,6 +1,23 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import csv
+
+
+def read_csv():
+    fixes = []
+    with open('downloads/fixes.csv', mode='r') as infile:
+        csv_reader = csv.reader(infile, delimiter=',')
+        for row in csv_reader:
+            fixes.append(row)
+    return fixes
+
+
+def write_csv(bugs):
+    with open('downloads/bug.csv', 'w') as out_file:
+        w = csv.DictWriter(out_file, delimiter=',', fieldnames=["Ticket Number", "Bug"])
+        w.writeheader()
+        w.writerow(bugs)
 
 
 def get_issues():
@@ -40,15 +57,23 @@ def get_issues():
 
 
 def parse():
+    fixes = read_csv()
+    bugs = {}
     try:
         issue_json = json.loads(get_issues())
+        # print(issue_json["issueTable"])
         for i in issue_json["issueTable"]["issueKeys"]:
-            get_log_link(i)
+            log_link_parse(i)
+            if i in fixes:
+                bugs[i] = "Yes"
+            else:
+                bugs[i] = "No"
+        write_csv(bugs)
     except ValueError:
         print("File content empty, check cookie!")
 
 
-def get_log_link(ticket):
+def log_link_parse(ticket):
 
     cookies = {
         'wit-announce-bnr': 'e4905f76-6e43-40cc-92cd-ed5ded62b416-1538627972488-5db9242c29c57070cf522cc824097f52',
@@ -77,12 +102,12 @@ def get_log_link(ticket):
         link = tag.get('href', "")
         if "drive.google" in link:
             index_1 = link.index("1")
-            print(link[index_1:index_1+33])
+            # print(ticket, link[index_1:index_1+33])
             id = link[index_1:index_1+33]
             drive_ids.append(id)  # link ids in 1 ticket
 
     for id in drive_ids:
-        download_file_from_google_drive(id, "downloads/"+ticket)
+        download_file_from_google_drive(id, "downloads/"+ticket+".chls")
         break
 
 
@@ -111,7 +136,7 @@ def get_confirm_token(response):
 
 
 def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
+    CHUNK_SIZE = 5
 
     with open(destination, "wb") as f:
         for chunk in response.iter_content(CHUNK_SIZE):
@@ -121,6 +146,6 @@ def save_response_content(response, destination):
 
 parse()
 
-#
-# 14YS7yIGpcqOXknIO0ObFzIvZ0dj1Y7nx/view?usp=sharing
-# 1GFuOw_RDHhqwlQBLvPGYp8HSy0abIKsa
+
+
+
