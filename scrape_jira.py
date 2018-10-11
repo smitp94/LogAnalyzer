@@ -72,15 +72,18 @@ def get_log_link(ticket):
     # print(response.text)  # HTML
     soup = BeautifulSoup(response.text, features="html.parser")
     links = soup.find_all('a')
-    drive_links = []
+    drive_ids = []
     for tag in links:
         link = tag.get('href', "")
         if "drive.google" in link:
-            print(link)
-            drive_links.append(link)
+            index_1 = link.index("1")
+            print(link[index_1:index_1+33])
+            id = link[index_1:index_1+33]
+            drive_ids.append(id)  # link ids in 1 ticket
 
-    # for l in drive_links:
-    #     download_file_from_google_drive(l, "/downloads")
+    for id in drive_ids:
+        download_file_from_google_drive(id, "downloads/"+ticket)
+        break
 
 
 # Download files from google drive
@@ -115,5 +118,9 @@ def save_response_content(response, destination):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
 
+
 parse()
 
+#
+# 14YS7yIGpcqOXknIO0ObFzIvZ0dj1Y7nx/view?usp=sharing
+# 1GFuOw_RDHhqwlQBLvPGYp8HSy0abIKsa
