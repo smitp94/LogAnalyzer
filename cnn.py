@@ -25,7 +25,7 @@ def load_data():
     t1 = Tokenizer()
     t1.fit_on_texts(docs_test)
     encoded_test_docs = t1.texts_to_matrix(docs_test, mode='count')
-    return (encoded_docs, [0, 0, 1, 0, 0, 0, 0, 1, 0, 1]), (encoded_test_docs, [0]), len(t.word_index), t.word_index
+    return (encoded_docs, [0, 0, 1, 0, 0, 0, 0, 1, 0, 1]), (encoded_test_docs, [1]), len(t.word_index), t.word_index
 
 
 def test():
