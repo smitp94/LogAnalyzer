@@ -14,20 +14,23 @@ def read_csv():
 
 
 def write_csv(bugs):
-    with open('downloads/bug.csv', 'w') as out_file:
-        w = csv.DictWriter(out_file, delimiter=',', fieldnames=["Ticket Number", "Bug"])
-        w.writeheader()
-        w.writerow(bugs)
+    try:
+        with open('downloads/bug.csv', 'a') as out_file:
+            w = csv.DictWriter(out_file, delimiter=',', fieldnames=["Ticket_Number", "Bug"])
+            # w.writeheader()
+            w.writerow(bugs)
+    except:
+        print("Problem in writing CSV")
 
 
 def get_issues():
     # import requests
 
     cookies = {
-        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
         'jira.editor.user.mode': 'wysiwyg',
         'JSESSIONID': '1D9FAA5438CC321C15B9FE4EBEB10C3A',
         'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_da4dd52cbed4c070e70bd09bbd13c3a8ab56891a_lin',
+        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
     }
 
     headers = {
@@ -64,11 +67,14 @@ def parse():
         # print(issue_json["issueTable"])
         for i in issue_json["issueTable"]["issueKeys"]:
             log_link_parse(i)
+            print(i)
             if i in fixes:
-                bugs[i] = "Yes"
+                bugs["Ticket_Number"] = i
+                bugs["Bug"] = "Yes"
             else:
-                bugs[i] = "No"
-        write_csv(bugs)
+                bugs["Ticket_Number"] = i
+                bugs["Bug"] = "No"
+            write_csv(bugs)
     except ValueError:
         print("File content empty, check cookie!")
 
@@ -77,10 +83,10 @@ def log_link_parse(ticket):
 
     cookies = {
         'wit-announce-bnr': 'e4905f76-6e43-40cc-92cd-ed5ded62b416-1538627972488-5db9242c29c57070cf522cc824097f52',
-        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
         'jira.editor.user.mode': 'wysiwyg',
         'JSESSIONID': '1D9FAA5438CC321C15B9FE4EBEB10C3A',
         'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_da4dd52cbed4c070e70bd09bbd13c3a8ab56891a_lin',
+        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
     }
 
     headers = {
@@ -117,12 +123,12 @@ def download_file_from_google_drive(id, destination):
 
     session = requests.Session()
 
-    response = session.get(URL, params = { 'id' : id }, stream = True)
+    response = session.get(URL, params={'id': id}, stream=True)
     token = get_confirm_token(response)
 
     if token:
-        params = { 'id' : id, 'confirm' : token }
-        response = session.get(URL, params = params, stream = True)
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
 
     save_response_content(response, destination)
 
