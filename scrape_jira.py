@@ -3,10 +3,25 @@ import json
 from bs4 import BeautifulSoup
 import csv
 
+cookies_issueTable = {
+    'jira.editor.user.mode': 'wysiwyg',
+    'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
+    'JSESSIONID': '1A1D0DB08E037F0DDC105AD57586447F',
+    'wit-announce-bnr': 'e4905f76-6e43-40cc-92cd-ed5ded62b416-1538627972488-anon',
+    'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_83e1c9cdcfbf8d15113fbffd089cedcc9f49dfd3_lin',
+}
+cookies_ticket = {
+    'wit-announce-bnr': 'e4905f76-6e43-40cc-92cd-ed5ded62b416-1538627972488-5db9242c29c57070cf522cc824097f52',
+    'jira.editor.user.mode': 'wysiwyg',
+    'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
+    'JSESSIONID': '1A1D0DB08E037F0DDC105AD57586447F',
+    'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_83e1c9cdcfbf8d15113fbffd089cedcc9f49dfd3_lin',
+}
 
-def read_csv():
+
+def read_csv(file):
     fixes = []
-    with open('downloads/fixes.csv', mode='r') as infile:
+    with open('downloads/'+file, mode='r') as infile:
         csv_reader = csv.reader(infile, delimiter=',')
         for row in csv_reader:
             fixes.append(row)
@@ -17,7 +32,6 @@ def write_csv(bugs):
     try:
         with open('downloads/bug.csv', 'a') as out_file:
             w = csv.DictWriter(out_file, delimiter=',', fieldnames=["Ticket_Number", "Bug"])
-            # w.writeheader()
             w.writerow(bugs)
     except:
         print("Problem in writing CSV")
@@ -25,13 +39,8 @@ def write_csv(bugs):
 
 def get_issues():
     # import requests
-
-    cookies = {
-        'jira.editor.user.mode': 'wysiwyg',
-        'JSESSIONID': '1D9FAA5438CC321C15B9FE4EBEB10C3A',
-        'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_da4dd52cbed4c070e70bd09bbd13c3a8ab56891a_lin',
-        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
-    }
+    global cookies_issueTable
+    cookies = cookies_issueTable
 
     headers = {
         'X-Atlassian-Token': 'no-check',
@@ -60,14 +69,18 @@ def get_issues():
 
 
 def parse():
-    fixes = read_csv()
+    fixes = read_csv("fixes.csv")
+    parsed_tickets = read_csv("bug.csv")
+    parsed_tickets = [x[0] for x in parsed_tickets] # to get ticket numbers already parsed
+    # print([x[0] for x in parsed_tickets])
     bugs = {}
     try:
         issue_json = json.loads(get_issues())
-        # print(issue_json["issueTable"])
-        for i in issue_json["issueTable"]["issueKeys"]:
+        issues = list(set(issue_json["issueTable"]["issueKeys"]) - set(parsed_tickets))
+        # print(len(issue_json["issueTable"]["issueKeys"]))
+        for i in issues:
             log_link_parse(i)
-            print(i)
+            # print(i)
             if i in fixes:
                 bugs["Ticket_Number"] = i
                 bugs["Bug"] = "Yes"
@@ -80,14 +93,8 @@ def parse():
 
 
 def log_link_parse(ticket):
-
-    cookies = {
-        'wit-announce-bnr': 'e4905f76-6e43-40cc-92cd-ed5ded62b416-1538627972488-5db9242c29c57070cf522cc824097f52',
-        'jira.editor.user.mode': 'wysiwyg',
-        'JSESSIONID': '1D9FAA5438CC321C15B9FE4EBEB10C3A',
-        'atlassian.xsrf.token': 'B1Q0-LWZP-03X5-1IZG_da4dd52cbed4c070e70bd09bbd13c3a8ab56891a_lin',
-        'AJS.conglomerate.cookie': '|hipchat.inapp.links.first.clicked.Smit.Patel@fxnetworks.com=false',
-    }
+    global cookies_ticket
+    cookies = cookies_ticket
 
     headers = {
         'Connection': 'keep-alive',
@@ -95,6 +102,7 @@ def log_link_parse(ticket):
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Referer': 'https://fox.okta.com/app/jira_onprem/exk17lwpf4yQGEMxk1d8/sso/saml/3.0.667?useRedirects=true&RelayState=https%3A%2F%2Ffng-jira.fox.com%2Fbrowse%2FFOXAPI-5121',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9',
     }
@@ -151,7 +159,4 @@ def save_response_content(response, destination):
 
 
 parse()
-
-
-
 
